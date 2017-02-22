@@ -6,7 +6,7 @@ var crypt   = require('crypto');
 var algo     = 'aes-256-ctr';
 var cryptkey = uuidV4();
 
-var DONOTCRYPT = true;
+var DONOTCRYPT = false;
 
 function encrypt(text) {
   if (DONOTCRYPT)
