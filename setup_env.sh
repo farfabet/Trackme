@@ -1,9 +1,14 @@
 #!/bin/bash
 docker pull mongo
-docker pull node
-docker run -v "$(pwd)":/data --name mongo -d mongo mongod --smallfiles
+docker pull nginx
+#docker run --name node -v "$(pwd)":/data -w /data node npm install &&
+docker build -f node.Dockerfile -t $USER/trackme-node .  
+#docker commit node $USER/trackme-node &&
+#docker rm node &&
+docker network create  track-me-network
+docker run -v "$(pwd)":/data --name mongo -d --net=track-me-network mongo mongod --smallfiles &&
+sleep 1 &&
 #docker exec -it mongo bash
-docker run --name node -v "$(pwd)":/data --link mongo:mongo -w /data -p 8082:8082 node npm install &&
-docker commit node $USER/trackme-node &&
-docker rm node &&
-docker run -it --name node -v "$(pwd)":/data --link mongo:mongo -w /data -p 8082:8082 $USER/trackme-node bash --rcfile motd
+docker run -d --name node -v "$(pwd)":/data -w /data --net=track-me-network $USER/trackme-node node app.js &&
+sleep 1 &&
+docker run -d --name nginx -v "$(pwd)/nginx.conf":/etc/nginx/nginx.conf -p 8081:80 --net=track-me-network nginx

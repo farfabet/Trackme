@@ -1,3 +1,5 @@
+'use strict';
+
 var jws      = require('jws');
 var Client   = require('node-rest-client').Client;
 var uuidV4   = require('uuid/v4');
@@ -9,7 +11,7 @@ var cryptkey = uuidV4();
 var DONOTCRYPT = false;
 
 function encrypt(text) {
-  if (DONOTCRYPT)
+  if (DONOTCRYPT || !text)
     return text;
   var cipher   = crypt.createCipher(algo, cryptkey);
   var crypted = cipher.update(text, 'utf8', 'hex');
@@ -18,7 +20,7 @@ function encrypt(text) {
 }
 
 function decrypt(text) {
-  if (DONOTCRYPT)
+  if (DONOTCRYPT || !text)
     return text;
   var decipher   = crypt.createDecipher(algo, cryptkey);
   var dec = decipher.update(text, 'hex', 'utf8');
@@ -29,6 +31,7 @@ function decrypt(text) {
 var client = new Client();
 
 function get_repo(url, id, callback) {
+  if (!id) { console.log("no id to get, return."); return ;}
   console.log("getting value from " + id);
   var args = {
     parameters : { id: id },
@@ -49,6 +52,7 @@ function init_repo(url, text, callback) {
 }
 
 function update_repo(url, repo, text, sigkey, callback) {
+  if (!text || !sigkey) {console.log("no text or sigkey, return."); return ;}
   text = encrypt(text);
   var data = {
     repo: repo,
@@ -69,16 +73,16 @@ function update_repo(url, repo, text, sigkey, callback) {
   console.log("update repo with sigkey:" + sigkey);
   console.log("signature:"+ signature);
   console.log("verif:" + jws.verify(signature, 'HS256', sigkey));
-
   client.put(url, args, callback); 
 }
 
-var url="http://localhost:8082";
+var url="http://nginx:80";
 var wack_sigkey;
 var wack_id;
 
 // Unit test init / get / upate / get : should work
 init_repo(url, "knock knock", function(data, response) {
+  if (response.statusCode !== 200) {console.log(response.statusMessage); return;}
   console.log("sigkey:" + data.sigkey);
   console.log("_id:" + data._id);
   var sigkey = data.sigkey;
@@ -99,7 +103,9 @@ init_repo(url, "knock knock", function(data, response) {
 });
 
 // Unit test init / update : should failed 'wrong signature'
+function wrong_sig_test() {
 init_repo(url, "knock knock", function(data, response) {
+  if (response.statusCode !== 200) {console.log(response.statusMessage); return;}
   console.log("sigkey:" + data.sigkey);
   console.log("_id:" + data._id);
   var sigkey = 'pouet'; 
@@ -109,6 +115,7 @@ init_repo(url, "knock knock", function(data, response) {
     console.log(data.toString('ascii'));
   });
 });
+}
 
 function get_wack() {
   get_repo(url, wack_id, function(data, response) {
@@ -124,8 +131,9 @@ function wack() {
   });
 }
 
-
+setTimeout(wrong_sig_test, 1000);
 // Testing expiration on updated_at index TTL. MongoDB should be db.adminCommand({setParameter:1, ttlMonitorSleepSecs:5});
 setTimeout(wack, 5000);
 setTimeout(get_wack, 9000);
 setTimeout(get_wack, 18000);
+setTimeout(wrong_sig_test, 20000);

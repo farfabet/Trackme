@@ -1,3 +1,5 @@
+'use strict';
+
 var mongoose      =    require('mongoose');
 var express       =    require('express');
 var bodyParser    =    require('body-parser');
@@ -8,7 +10,7 @@ var app           =    express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-mongoose.connect('mongodb://'+process.env.MONGO_PORT_27017_TCP_ADDR+':'+process.env.MONGO_PORT_27017_TCP_PORT+'/test', function(err) {
+mongoose.connect('mongodb://mongo:27017/trackme', function(err) {
 	if (err) {throw err; }
 });
 
