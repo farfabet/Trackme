@@ -1,0 +1,6 @@
+echo "#########"
+echo "# How to run server"
+echo "# $> node app.js"
+echo "# How to run test client"
+echo "# $> node cli.js"
+echo "#########"
