@@ -1,0 +1,12 @@
+{
+  "name": "testfab",
+  "version": "0.0.1",
+  "dependencies": {
+    "express": "^4.14.1",
+    "jws": "^3.1.4",
+    "uuid": "^3.0.1",
+    "mongoose": "^4.8.3",
+    "body-parser": "^1.16.1",
+    "node-rest-client": "^2.5.0"
+  }
+}
