@@ -23,7 +23,6 @@ Connection: close
   
 {"data":"7c3640a0175fe0d5cf8307"}
 ```
-decrypted data looks like : {"data":"knock knock"}
 
 ```
 HTTP/1.1 200 OK
@@ -36,8 +35,6 @@ X-Powered-By: Express
   
 {"sigkey":"dd9b16ea-6fc5-4912-8dbe-18ba6488c3d9","data":"7c3640a0175fe0d5cf8307","_id":"58aea5385d2f310001a592fd","created_at":"2017-02-23T09:02:48.702Z"}
 ```
-decrypted data looks like : 
-{"sigkey":"dd9b16ea-6fc5-4912-8dbe-18ba6488c3d9","data":"knock knock","_id":"58aea5385d2f310001a592fd","created_at":"2017-02-23T09:02:48.702Z"}
 
 Repository is created on MongoDB with a TTL, expiration is delay after each update
 
