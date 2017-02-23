@@ -54,8 +54,19 @@ Connection: close
   
 eyJhbGciOiJIUzI1NiJ9.eyJyZXBvIjoiNThhZWE1Mzg1ZDJmMzEwMDAxYTU5MmZkIiwiZGF0YSI6IjYyMjg0YmEyMDgxYWVmOWJkMjg1MWM0ZCJ9.e-QiHYQKw64UHxzN6ERZKMbBSBGq2NRNUCehiWlzsA0
 ```
-decoded from Base64 (and decrypted data) signed message looks like : 
-{"header":{"alg":"HS256"},"payload":"{\"repo\":\"58aea90c8d3f66000110177a\",\"data\":\"updated repo\"}","signature":"SjJQHDMJWzHTqVv4Ro7QA53rHwB83SIalYBc5GRS8O4"}
+decoded from Base64 (and decrypted data) signed message looks like :
+```
+{
+  "header": {
+    "alg": "HS256"
+  },
+  "payload": {
+    "repo": "58aea90c8d3f66000110177a",
+    "data": "updated repo"
+  },
+  "signature": "SjJQHDMJWzHTqVv4Ro7QA53rHwB83SIalYBc5GRS8O4"
+}
+```
 
 ```
 HTTP/1.1 200 OK
@@ -100,7 +111,15 @@ Host: nginx
 Connection: close
 ```
 decoded from base64 data looks like, where payload is ObjectId to delete :
-{"header":{"alg":"HS256"},"payload":"58aeb1756515500001fc3968","signature":"S2JORPI7t3pDo9rN_WRqy8SpybIOXa8sPklzX3LVU18"}  
+```
+{ 
+  "header": {
+    "alg": "HS256"
+  },
+  "payload": "58aeb1756515500001fc3968",
+  "signature":"S2JORPI7t3pDo9rN_WRqy8SpybIOXa8sPklzX3LVU18"
+}  
+```
 
 ```
 HTTP/1.1 200 OK

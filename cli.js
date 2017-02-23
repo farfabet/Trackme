@@ -71,14 +71,13 @@ function delete_repo(url, id, sigkey, callback) {
 function update_repo(url, id, text, sigkey, callback) {
   if (!id || !text || !sigkey) {console.log("no id or no text or sigkey, return."); return ;}
   text = encrypt(text);
-  var data = {
-    id: id,
-    data: text
-  };
-
+  
   const signature = jws.sign({
     header: { alg: 'HS256' },
-    payload: data,
+    payload: {
+      id: id,
+      data: text
+    },
     secret: sigkey,
   });
 

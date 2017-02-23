@@ -28,7 +28,7 @@ var dataSchema = mongoose.Schema({
   sigkey:  { type: String },
   data: { type: String },
   created_at: { type: Date, default: Date.now },
-  updated_at: { type: Date, default: Date.now, index : { expires : 10 } }
+  updated_at: { type: Date, default: Date.now, index : { expires : 86400 } }
 });
 
 var Data = mongoose.model('Data', dataSchema);
