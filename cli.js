@@ -51,11 +51,28 @@ function init_repo(url, text, callback) {
   client.post(url, args, callback);
 }
 
-function update_repo(url, repo, text, sigkey, callback) {
-  if (!text || !sigkey) {console.log("no text or sigkey, return."); return ;}
+function delete_repo(url, id, sigkey, callback) {
+  if (!id) {console.log("no id, return."); return ;}
+
+  const signature = jws.sign({
+    header: { alg: 'HS256' },
+    payload: id,
+    secret: sigkey,
+  });
+
+  var args = {
+    parameters : { data : signature },
+    headers: { "Content-Type": "application/text" }
+  }
+
+  client.delete(url, args, callback);
+}
+
+function update_repo(url, id, text, sigkey, callback) {
+  if (!id || !text || !sigkey) {console.log("no id or no text or sigkey, return."); return ;}
   text = encrypt(text);
   var data = {
-    repo: repo,
+    id: id,
     data: text
   };
 
@@ -108,11 +125,13 @@ init_repo(url, "knock knock", function(data, response) {
   if (response.statusCode !== 200) {console.log(response.statusMessage); return;}
   console.log("sigkey:" + data.sigkey);
   console.log("_id:" + data._id);
-  var sigkey = 'pouet'; 
+  var sigkey = data.sigkey; 
   var id = data._id;
-//  console.log("using wrong sigkey:" + sigkey);
-  update_repo(url, id, "updated repo", sigkey, function (data, response) {
+  update_repo(url, id, "updated data", 'wrong sigkey', function (data, response) {
     console.log(data.toString('ascii'));
+    delete_repo(url, id, sigkey, function (data, reponse) {
+      console.log(data.toString('ascii'));
+    });
   });
 });
 }
@@ -133,7 +152,7 @@ function wack() {
 
 setTimeout(wrong_sig_test, 1000);
 // Testing expiration on updated_at index TTL. MongoDB should be db.adminCommand({setParameter:1, ttlMonitorSleepSecs:5});
-setTimeout(wack, 5000);
-setTimeout(get_wack, 9000);
-setTimeout(get_wack, 18000);
-setTimeout(wrong_sig_test, 20000);
+//setTimeout(wack, 5000);
+//setTimeout(get_wack, 9000);
+//setTimeout(get_wack, 18000);
+//setTimeout(wrong_sig_test, 20000);

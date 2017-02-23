@@ -7,6 +7,10 @@ var uuidV4        =    require('uuid/v4');
 var jws           =    require('jws');
 var app           =    express();
 
+process.on('SIGINT', function() {
+    process.exit();
+});
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -50,28 +54,48 @@ app.get('/', function(request, response) {
   var id = request.query.id;
   console.log('id:' + id);
   Data.findById(id, 'data', function (err, res) {
-      if (err) {response.status(500).end("cannot fetch repository"); return};
-      if (res == null) { response.status(404).end("unknown repository"); return};
+      if (err) {response.status(500).end("cannot fetch repository id:" + id); return};
+      if (res == null) { response.status(404).end("unknown repository id:" + id); return};
       console.log('res:' + res);
       response.setHeader('content-type', 'application/json');
       response.end(JSON.stringify(res));
   });
 });
 
+app.delete('/', function(request, response) {
+  console.log(request.query.data);
+  var b64_sig = request.query.data;
+  var sig = jws.decode(b64_sig);
+  console.log("delete decoded:" + JSON.stringify(sig));
+  var id = sig.payload;
+  //console.log("id:%s", id);
+  Data.findById(id, 'sigkey', function (err, res) {
+    if (err) { response.status(500).end("cannot fetch repository id:" + id); return; };
+    if (res == null) { response.status(404).end("unknown repository id:" + id); return; };
+    //console.log(res);
+    if(!jws.verify(b64_sig, 'HS256', res.sigkey)) { response.status(403).end("wrong signature"); return ; }
+    Data.remove(id, function(err, res) {
+      if (err) { console.log(err); }
+      response.end();
+    });
+  });
+});
+
+
 app.put('/', function(request, response) {
   request.on('data', function(chunk) {
     var b64_sig = chunk.toString();
     var sig = jws.decode(b64_sig);
-    //console.log(sig);
+    console.log("put decoded:" + JSON.stringify(sig));
     var data = JSON.parse(sig.payload);
-    var repo = data.repo;
-    //console.log("repo:%s", repo);
-    Data.findById(repo, 'sigkey', function (err, res) {
-      if (err) { response.status(500).end("cannot fetch repository"); return; };
-      if (res == null) { response.status(404).end("unknown repository"); return; };
+    var id = data.id;
+    //console.log("id:%s", id);
+    Data.findById(id, 'sigkey', function (err, res) {
+      if (err) { response.status(500).end("cannot fetch repository id:" + id); return; };
+      if (res == null) { response.status(404).end("unknown repository id:" + id); return; };
       //console.log(res);
       if(!jws.verify(b64_sig, 'HS256', res.sigkey)) { response.status(403).end("wrong signature"); return ; } 
-      Data.findByIdAndUpdate(repo, { $set: { data : data.data, updated_at: new Date() } } , function (err, doc) {
+      Data.findByIdAndUpdate(id, { $set: { data : data.data, updated_at: new Date() } } , function (err, doc) {
         if (err) console.log(err);
         response.end();
       });
