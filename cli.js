@@ -61,7 +61,7 @@ function delete_repo(url, id, sigkey, callback) {
 
   const signature = jws.sign({
     header: { alg: 'HS256' },
-    payload: id,
+    payload: { id : id },
     secret: sigkey,
   });
 
@@ -110,13 +110,13 @@ init_repo(url, "knock knock", function(data, response) {
   wack_id = id;
   wack_sigkey = sigkey;
   get_repo(url, id, function(data, response) {
-    console.log("ciphered:" + data.data);
-    console.log("deciphered:" + decrypt(data.data));
-    update_repo(url, id, "updated repo", sigkey, function (data, response) {
-      console.log(data.toString('ascii'));
+    console.log("got ciphered:" + data.data);
+    console.log("got deciphered:" + decrypt(data.data));
+    update_repo(url, id, "We the People of the United States, in Order to form a more perfect Union, establish Justice, insure domestic Tranquility, provide for the common defence, promote the general Welfare, and secure the Blessings of Liberty to ourselves and our Posterity, do ordain and establish this Constitution for the United States of America.", sigkey, function (data, response) {
+      console.log('update res:' + data.toString('ascii'));
       get_repo(url, id, function(data, response) {
-        console.log("ciphered:"+data.data);
-        console.log("deciphered:" + decrypt(data.data));
+        console.log("got ciphered:"+data.data);
+        console.log("got deciphered:" + decrypt(data.data));
       });
     });
   });
@@ -130,10 +130,10 @@ init_repo(url, "knock knock", function(data, response) {
   console.log("_id:" + data._id);
   var sigkey = data.sigkey; 
   var id = data._id;
-  update_repo(url, id, "We the People of the United States, in Order to form a more perfect Union, establish Justice, insure domestic Tranquility, provide for the common defence, promote the general Welfare, and secure the Blessings of Liberty to ourselves and our Posterity, do ordain and establish this Constitution for the United States of America.", 'wrong sigkey', function (data, response) {
-    console.log(data.toString('ascii'));
+  update_repo(url, id, "Small update", 'wrong sigkey', function (data, response) {
+    console.log("update res: " + data.toString('ascii'));
     delete_repo(url, id, sigkey, function (data, reponse) {
-      console.log(data.toString('ascii'));
+      console.log("delete res: " + data.toString('ascii'));
     });
   });
 });
@@ -141,14 +141,14 @@ init_repo(url, "knock knock", function(data, response) {
 
 function get_wack() {
   get_repo(url, wack_id, function(data, response) {
-    console.log("ciphered:"+data.data);
-    console.log("deciphered:" + decrypt(data.data));
+    console.log("got wack ciphered:"+data.data);
+    console.log("got wack deciphered:" + decrypt(data.data));
   });
 }
 
 function wack() {
   update_repo(url, wack_id, "wack wack wink", wack_sigkey, function (data, response) {
-    console.log(data.toString('ascii'));
+    console.log('wack update res:' + data.toString('ascii'));
     get_wack();
   });
 }

@@ -67,7 +67,8 @@ app.delete('/', function(request, response) {
   var b64_sig = request.query.data;
   var sig = jws.decode(b64_sig);
   console.log("delete decoded:" + JSON.stringify(sig));
-  var id = sig.payload;
+  var payload = JSON.parse(sig.payload);
+  var id = payload.id;
   //console.log("id:%s", id);
   Data.findById(id, 'sigkey', function (err, res) {
     if (err) { response.status(500).end("cannot fetch repository id:" + id); return; };
@@ -76,7 +77,7 @@ app.delete('/', function(request, response) {
     if(!jws.verify(b64_sig, 'HS256', res.sigkey)) { response.status(403).end("wrong signature"); return ; }
     Data.remove(id, function(err, res) {
       if (err) { console.log(err); }
-      response.end();
+      response.end('delete success');
     });
   });
 });
@@ -97,7 +98,7 @@ app.put('/', function(request, response) {
       if(!jws.verify(b64_sig, 'HS256', res.sigkey)) { response.status(403).end("wrong signature"); return ; } 
       Data.findByIdAndUpdate(id, { $set: { data : data.data, updated_at: new Date() } } , function (err, doc) {
         if (err) console.log(err);
-        response.end();
+        response.end('update success');
       });
     });
   });
