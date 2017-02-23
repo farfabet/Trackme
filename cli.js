@@ -9,6 +9,11 @@ var algo     = 'aes-256-ctr';
 var cryptkey = uuidV4();
 
 var DONOTCRYPT = false;
+var url="http://nginx:80";
+
+if (process.argv[2])
+  url=process.argv[2];
+console.log(url);
 
 function encrypt(text) {
   if (DONOTCRYPT || !text)
@@ -92,7 +97,6 @@ function update_repo(url, id, text, sigkey, callback) {
   client.put(url, args, callback); 
 }
 
-var url="http://nginx:80";
 var wack_sigkey;
 var wack_id;
 
@@ -126,7 +130,7 @@ init_repo(url, "knock knock", function(data, response) {
   console.log("_id:" + data._id);
   var sigkey = data.sigkey; 
   var id = data._id;
-  update_repo(url, id, "updated data", 'wrong sigkey', function (data, response) {
+  update_repo(url, id, "We the People of the United States, in Order to form a more perfect Union, establish Justice, insure domestic Tranquility, provide for the common defence, promote the general Welfare, and secure the Blessings of Liberty to ourselves and our Posterity, do ordain and establish this Constitution for the United States of America.", 'wrong sigkey', function (data, response) {
     console.log(data.toString('ascii'));
     delete_repo(url, id, sigkey, function (data, reponse) {
       console.log(data.toString('ascii'));
